@@ -123,20 +123,42 @@ Vector distance(Vector pos, Vector dir, double t)
 	return d;
 }
 
+Vector handle_coor(Vector a, Vector n)
+{
+	Vector res;
+	double cos = vec2_dot(a,n);
+	Vector nn = (Vector){n.x * cos , n.y * cos, n.z * cos};
+	res = vec2_sub(a,nn);
+
+	return res;
+}
+
+float ft_dis(Vector pos, float t,Vector normal,Vector d)
+{
+		Vector s = (Vector){pos.x + t * d.x ,pos.y + t * d.y ,pos.z + t * d.z };
+		s = vec_sub(s, vec_sub(s,vec_dot(normal ,s))); 
+		float r =sqrt(s.x * s.x + s.y * s.y  + s.z * s.z);
+		return r;
+}
+
 f_Vector ft_color(float x,float y)
 {
 
 	Vector d = {x , y, -1} ;
-	Vector normal = {0,1,0};
+	Vector normal = {5,1,5};
 	normal = vec_norm(normal);
     //dir = vec2_norm(dir);
-	Cylinder cy = {{0,0,0}, 2, 5};
+	Cylinder cy = {{0,0,0}, 2, 10};
 	Vector pos = {0,0, 10};
 	Vector light = {0,1 ,1}; // in fact light is (-1,-1,-1)
+	float t[2];
+	float dis[2];
+	bool bol[2];
 
-	Vector dir = vec_sub(d,vec_dot(normal, d));
+	//Vector dir = vec_sub(d,vec_dot(normal, d));
+	Vector dir = handle_coor(d, normal);
     Vector o = vec2_sub(pos, cy.center); // (0 , 0, 5)
-	Vector oc = vec_sub(o, vec_dot(normal, o));
+	Vector oc = handle_coor(o, normal);
     double a = vec2_dot(dir, dir); // 1;
     double b = 2.0 * vec2_dot(oc, dir); //[0 , -10]
     double c = vec2_dot(oc, oc) - (cy.radius * cy.radius); //[0 ,25]
@@ -150,12 +172,19 @@ f_Vector ft_color(float x,float y)
 		
         double t0 = (-b + sqrt(discriminant)) / (2.0 * a);
         double t1 = (-b - sqrt(discriminant)) / (2.0 * a);
-        double t =  fmin(t0, t1);
-		Vector s = (Vector){pos.x - t * d.x ,pos.y - t * d.y ,pos.z - t * d.z };
-		s = vec_sub(s, vec_sub(s,vec_dot(normal ,s))); 
-		float r =sqrt(s.x * s.x + s.y * s.y  + s.z * s.z);
-		if((r >= cy.center.y - (cy.h * 0.5)) && (r <= cy.center.y + (cy.h * 0.5)))
+        t[0] =  fmin(t0, t1);
+		t[1] = fmax(t0, t1);
+
+		dis[0] = ft_dis(pos, t[0], normal, d);
+		dis[1] = ft_dis(pos, t[1], normal, d);
+		bol[0] = (dis[0] >= cy.center.y - (cy.h * 0.5)) && (dis[0] <= cy.center.y + (cy.h * 0.5)) && t[0] > 0.0;
+		bol[1] = (dis[1] >= cy.center.y - (cy.h * 0.5)) && (dis[1] <= cy.center.y + (cy.h * 0.5)) && t[1] > 0.0;
+		//bol[0] = (dis[0] >= cy.center.y)  && (dis[0] <= cy.center.y + cy.h ) && t[0] > 0.0;
+		//bol[0] = (dis[0] >= cy.center.y) && (dis[0] <= cy.center.y + cy.h ) && t[0] > 0.0;
+		if(bol[0])
 			return((f_Vector){1,1,1,1});
+		if(bol[0] == false &  bol[1] == true)
+			return((f_Vector){1,1,1,1});	
 		return((f_Vector){0,0,0,1});
 		/*Vector m = distance(pos, dir , t);
 		m = vec2_norm(m);
