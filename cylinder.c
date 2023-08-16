@@ -43,6 +43,29 @@ Vector vec2_norm(Vector a)
     return (b);
 }
 
+Vector vec_norm(Vector a)
+{
+	Vector b;
+    double length = sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+    double alpha = 1.0 / length;
+
+	b.x = a.x * alpha;
+	b.y = a.y * alpha;
+	b.z = a.z * alpha;
+
+	return b;
+}
+
+Vector vec_sub(Vector u, Vector v)
+{
+	return ((Vector){u.x - v.x , u.y - v.y , u.z - v.z});
+}
+
+Vector vec_dot(Vector u, Vector v)
+{
+	return ((Vector){u.x * v.x , u.y * v.y , u.z * v.z });
+}
+
 Vector_4 vec4_norm(Vector_4 a)
 {
 	Vector_4 b;
@@ -102,13 +125,17 @@ Vector distance(Vector pos, Vector dir, double t)
 f_Vector ft_color(float x,float y)
 {
 
-	Vector dir = {x , 0, -1};
+	Vector d = {x , y, -1} ;
+	Vector normal = {0,1,0};
+	normal = vec_norm(normal);
     //dir = vec2_norm(dir);
 	Cylinder cy = {{0,0,0}, 2, 5};
 	Vector pos = {0,0, 10};
 	Vector light = {0,1 ,1}; // in fact light is (-1,-1,-1)
 
-    Vector oc = vec2_sub(pos, cy.center); // (0 , 0, 5)
+	Vector dir = vec_sub(d,vec_dot(normal, d));
+    Vector o = vec2_sub(pos, cy.center); // (0 , 0, 5)
+	Vector oc = vec_sub(o, vec_dot(normal, o));
     double a = vec2_dot(dir, dir); // 1;
     double b = 2.0 * vec2_dot(oc, dir); //[0 , -10]
     double c = vec2_dot(oc, oc) - (cy.radius * cy.radius); //[0 ,25]
@@ -123,7 +150,9 @@ f_Vector ft_color(float x,float y)
         double t0 = (-b + sqrt(discriminant)) / (2.0 * a);
         double t1 = (-b - sqrt(discriminant)) / (2.0 * a);
         double t =  fmin(t0, t1);
-		float r = pos.y - t * y;
+		Vector s = (Vector){pos.x - t * d.x ,pos.y - t * d.y ,pos.z - t * d.z };
+		s = vec_sub(s, vec_sub(s,vec_dot(normal ,s))); 
+		float r =sqrt(s.x * s.x + s.y * s.y  + s.z * s.z);
 		if((r >= cy.center.y - (cy.h * 0.5)) && (r <= cy.center.y + (cy.h * 0.5)))
 			return((f_Vector){1,1,1,1});
 		return((f_Vector){0,0,0,1});
