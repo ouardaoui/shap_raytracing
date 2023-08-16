@@ -61,6 +61,7 @@ Vector vec_sub(Vector u, Vector v)
 	return ((Vector){u.x - v.x , u.y - v.y , u.z - v.z});
 }
 
+
 Vector vec_dot(Vector u, Vector v)
 {
 	return ((Vector){u.x * v.x , u.y * v.y , u.z * v.z });
