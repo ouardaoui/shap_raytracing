@@ -133,11 +133,17 @@ Vector handle_coor(Vector a, Vector n)
 	return res;
 }
 
-float ft_dis(Vector pos, float t,Vector normal,Vector d)
+float ft_dis(Vector pos,Vector oc, float t,Vector normal,Vector d)
 {
-		Vector s = (Vector){pos.x + t * d.x ,pos.y + t * d.y ,pos.z + t * d.z };
+		/*d = (Vector){d.x * t ,d.y * t, d.z *t};
+		oc = (Vector){oc.x * -1 ,oc.y * -1, oc.z *-1};
+		float k = vec2_dot(normal,vec_sub(d, oc));
+		k = sqrt(k);
+		*/	
+		Vector s = (Vector){pos.x + t*d.x ,pos.y + t*d.y ,pos.z + t*d.z };
 		s = vec_sub(s, vec_sub(s,vec_dot(normal ,s))); 
 		float r =sqrt(s.x * s.x + s.y * s.y  + s.z * s.z);
+		//printf("%f\t%f\n", r , k);
 		return r;
 }
 
@@ -145,10 +151,10 @@ f_Vector ft_color(float x,float y)
 {
 
 	Vector d = {x , y, -1} ;
-	Vector normal = {5,1,5};
+	Vector normal = {0,0,-1};
 	normal = vec_norm(normal);
-    //dir = vec2_norm(dir);
-	Cylinder cy = {{0,0,0}, 2, 10};
+    //d = vec_norm(d);
+	Cylinder cy = {{0,0,0}, 2, 5};
 	Vector pos = {0,0, 10};
 	Vector light = {0,1 ,1}; // in fact light is (-1,-1,-1)
 	float t[2];
@@ -175,11 +181,11 @@ f_Vector ft_color(float x,float y)
         t[0] =  fmin(t0, t1);
 		t[1] = fmax(t0, t1);
 
-		dis[0] = ft_dis(pos, t[0], normal, d);
-		dis[1] = ft_dis(pos, t[1], normal, d);
-		bol[0] = (dis[0] >= cy.center.y - (cy.h * 0.5)) && (dis[0] <= cy.center.y + (cy.h * 0.5)) && t[0] > 0.0;
-		bol[1] = (dis[1] >= cy.center.y - (cy.h * 0.5)) && (dis[1] <= cy.center.y + (cy.h * 0.5)) && t[1] > 0.0;
-		//bol[0] = (dis[0] >= cy.center.y)  && (dis[0] <= cy.center.y + cy.h ) && t[0] > 0.0;
+
+		dis[0] = ft_dis(pos,o, t[0], normal, d);
+		dis[1] = ft_dis(pos,o, t[1], normal, d);
+		bol[0] = (dis[0] >= -(cy.h * 0.5)) && (dis[0] <= (cy.h * 0.5)) && t[0] > 0.0;
+		bol[1] = (dis[1] >= -(cy.h * 0.5)) && (dis[1] <= (cy.h * 0.5)) && t[1] > 0.0;
 		//bol[0] = (dis[0] >= cy.center.y) && (dis[0] <= cy.center.y + cy.h ) && t[0] > 0.0;
 		if(bol[0])
 			return((f_Vector){1,1,1,1});
