@@ -6,13 +6,17 @@
 #    By: aouardao <aouardao@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/05/08 17:11:01 by hahadiou          #+#    #+#              #
-#    Updated: 2023/08/17 05:53:20 by aouardao         ###   ########.fr        #
+#    Updated: 2023/08/17 07:13:22 by aouardao         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC		= cc
 FLAGS	=   -IINC -fsanitize=address -g -Wunreachable-code -Ofast
-LIBMLX = libmlx42.a
+UNAME_S := $(shell uname -s)
+LIBMLX = ../os/libmlx42.a
+ifeq ($(UNAME_S),Linux)
+    LIBMLX = ../unix/libmlx42.a
+endif
 NAME	= miniRT
 
 INC	= include
