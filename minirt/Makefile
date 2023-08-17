@@ -6,7 +6,7 @@
 #    By: aouardao <aouardao@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/05/08 17:11:01 by hahadiou          #+#    #+#              #
-#    Updated: 2023/08/17 07:13:22 by aouardao         ###   ########.fr        #
+#    Updated: 2023/08/17 07:13:25y aouardao         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,9 @@ CC		= cc
 FLAGS	=   -IINC -fsanitize=address -g -Wunreachable-code -Ofast
 UNAME_S := $(shell uname -s)
 LIBMLX = ../os/libmlx42.a
+LIB_PATH =  -Iinclude -lglfw -L"/goinfre/aouardao/brew/Cellar/glfw/3.3.8/lib"
 ifeq ($(UNAME_S),Linux)
+		LIB_PATH =  -Iinclude -ldl -lglfw -pthread -lm
     LIBMLX = ../unix/libmlx42.a
 endif
 NAME	= miniRT
@@ -49,7 +51,7 @@ bonus: $(NAMEB)
 $(NAME): $(OBJ)
 	@echo "$(YELLOW)Compiling Utils...$(NOC)"
 	@echo "$(YELLOW)Compiling miniRT...$(NOC)"
-	@$(CC) $(FLAGS) $(LIBMLX) -Iinclude -lglfw -L"/goinfre/aouardao/brew/Cellar/glfw/3.3.8/lib" src/libft.a -o $@ $^
+	@$(CC) $(FLAGS) $(LIBMLX) $(LIB_PATH) src/libft.a -o $@ $^
 	@echo "$(GREEN)$@$(NOC)"
 
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c $(INC)/minirt.h
