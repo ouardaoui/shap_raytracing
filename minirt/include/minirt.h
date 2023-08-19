@@ -22,12 +22,12 @@
 #define WIDTH 800
 #define HEIGHT 600
 
-enum e_error t_error;
+//enum e_error t_error;
 
-enum e_error {
+/*enum e_error {
     inv_ext,
     inv_file
-};
+};*/
 typedef struct 	s_scene		t_scene;
 typedef struct 	s_set		t_set;
 typedef struct 	s_cam		t_cam;
@@ -46,15 +46,18 @@ struct s_vec3
 	double	z;
 };
 
-struct s_cam
-{
-	bool	set;
-	t_vec3	pos;
-	t_vec3	dir;
-	t_vec3	pos_initial;
-	t_vec3	dir_initial;
-	int		fov;
-};
+	struct s_cam
+	{
+		bool	set;
+		t_vec3	pos;
+		t_vec3	dir;
+		t_vec3	pos_initial;
+		t_vec3	dir_initial;
+		t_vec3	hor;
+		t_vec3	ver;
+		t_vec3	c;
+		int		fov;
+	};
 
 struct s_am_light
 {
@@ -157,6 +160,7 @@ void add_cylinder_to_back(t_cylinder **lst, t_cylinder *new_node);
 void add_plane_to_back(t_plane **lst, t_plane *new_node);
 t_plane *create_plane_node() ;
 void add_light_to_back(t_light **lst, t_light *new_node);
-t_light *create_light_node() ;
+t_light *create_light_node();
+void render_scene(t_scene  *scene, mlx_image_t *img);
 
 #endif // MINIRT_H

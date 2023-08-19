@@ -17,7 +17,8 @@ SRCS =	get_next_line.c \
 			ft_strchr.c \
 			ft_strlen.c \
 			ft_strtrim.c \
-			ft_substr.c 
+			ft_substr.c \
+			ft_tool.c
 
 OBJS = ${addprefix obj/, ${SRCS:.c=.o}}
 

@@ -11,64 +11,32 @@
 # **************************************************************************** #
 
 CC		= cc
-FLAGS	=   -IINC -fsanitize=address -g -Wunreachable-code -Ofast
-UNAME_S := $(shell uname -s)
-LIBMLX = ../os/libmlx42.a
-LIB_PATH =  -Iinclude -lglfw -L"/goinfre/aouardao/brew/Cellar/glfw/3.3.8/lib"
-ifeq ($(UNAME_S),Linux)
-		LIB_PATH =  -Iinclude -ldl -lglfw -pthread -lm
-    LIBMLX = ../unix/libmlx42.a
-endif
-NAME	= miniRT
-
-INC	= include
-SRC_PATH	= src
-UTILS_PATH	= utils
-OBJ_PATH	= obj
-
-SRCS = main.c \
-						parse.c \
-						parse_elem.c \
-						math_tools.c  \
-						parsing_tools.c \
-						list_tools.c \
-						get_next_line.c
+CFLAGS = -Wall -Werror -Wextra
+LIBMLX = ../unix/libmlx42.a
+SRCS = src/main.c \
+	src/parse.c \
+	src/parse_elem.c \
+	src/math_tools.c  \
+	src/parsing_tools.c \
+	src/list_tools.c \
+	src/get_next_line.c \
+	src/render.c
 		
-SRC		= $(addprefix $(SRC_PATH)/,$(SRCS))
-OBJ		= $(addprefix $(OBJ_PATH)/,$(SRCS:.c=.o))
-
-NOC		= \033[0m
-RED		= \033[1;31m
-GREEN	= \033[1;32m
-YELLOW	= \033[1;33m
-BLUE	= \033[1;34m
-WHITE	= \033[1;37m
+NAME = miniRT
 
 all: $(NAME)
 
-bonus: $(NAMEB)
-
-$(NAME): $(OBJ)
-	@echo "$(YELLOW)Compiling Utils...$(NOC)"
-	@echo "$(YELLOW)Compiling miniRT...$(NOC)"
-	@$(CC) $(FLAGS) $(LIBMLX) $(LIB_PATH) src/libft.a -o $@ $^
-	@echo "$(GREEN)$@$(NOC)"
-
-$(OBJ_PATH)/%.o: $(SRC_PATH)/%.c $(INC)/minirt.h
-	@mkdir -p obj
-	@$(CC) $(FLAGS) -I$(INC) -c -o $@ $<
+$(NAME): $(SRCS)
+	@$(CC) $(FLAGS) $(SRCS) $(LIBMLX) src/libft.a -lglfw -lm -o $(NAME)
 
 run:
 	make re && ./miniRT
+
 clean:
-	@echo "$(RED)Deleting OBJS ✔️ $(NOC)"
-	@make clean -sC $(UTILS_PATH)
-	@rm -rf $(OBJ_PATH)
+	@rm -rf $(NAME)
 
 fclean: clean
-	@echo "$(RED)Deleting Binary ✔️$(NOC)"
-	@make fclean -sC $(UTILS_PATH)
-	@rm -f $(NAME)
+
 
 re: fclean all
 
