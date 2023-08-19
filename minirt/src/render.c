@@ -79,8 +79,8 @@ float ft_dis(t_vec3 pos,t_vec3 oc, float t,t_vec3 normal,t_vec3 d)
 
 double intersect_cylindre(t_cylinder *cy, t_vec3 ray_origin, t_vec3 ray_dir)
 {
-	t_vec3 normal = cy->axis;
-
+	t_vec3 normal = vec3_norm(cy->axis);
+	
 	t_vec3 pos = ray_origin;
 	t_vec3 d = ray_dir;
 	float t[2];
@@ -113,7 +113,7 @@ double intersect_cylindre(t_cylinder *cy, t_vec3 ray_origin, t_vec3 ray_dir)
 		if(bol[0])
 			return t[0];
 		if(bol[0] == false &  bol[1] == true)
-			return t[1];	
+			return t[1];
 		return -1;
     }
 }
@@ -146,7 +146,7 @@ uint32_t ft_get_color(t_scene *scene,t_cam cam , float i, float j)
 {
 	t_vec3 dir;
 	t_vec3 ori;
-
+	
 	ori = cam.pos;
 	dir = vec3_sub(color_scale(i,cam.hor), color_scale(-j,cam.ver));
 	dir = (t_vec3){dir.x + cam.c.x , dir.y + cam.c.y , dir.z + cam.c.z};
