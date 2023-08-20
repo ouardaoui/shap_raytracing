@@ -12,9 +12,35 @@ t_vec3		vec3_cross(t_vec3 v, t_vec3 u)
     return vec;
 }
 
+double vec3_length(t_vec3 vec)
+{
+    return sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+}
+
+t_vec3	vec3_add(t_vec3 vec1, t_vec3 vec2)
+{
+	t_vec3 result;
+    
+	result.x = vec1.x + vec2.x;
+	result.y = vec1.y + vec2.y;
+	result.z = vec1.z + vec2.z;
+	return (result);
+}
+
 double	vec2_dot(t_vec3 vec1, t_vec3 vec2)
 {
 	return (vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z);
+}
+
+t_vec3	vec3_dot(t_vec3 vec1, t_vec3 vec2)
+{
+	t_vec3 vec;
+
+	vec.x = vec1.x * vec2.x;
+	vec.y = vec1.y * vec2.y;
+	vec.z = vec1.z * vec2.z;
+
+	return vec;
 }
 
 t_vec3 handle_coor(t_vec3 a, t_vec3 n)
@@ -77,7 +103,20 @@ float ft_dis(t_vec3 pos,t_vec3 oc, float t,t_vec3 normal,t_vec3 d)
 		return k;
 }
 
-double intersect_cylindre(t_cylinder *cy, t_vec3 ray_origin, t_vec3 ray_dir)
+double intersect_plane(t_plane *plane, t_vec3 ray_origin, t_vec3 ray_dir) {
+	t_vec3 nor = vec3_norm(plane->normal);
+    double denominator = vec2_dot(nor, ray_dir);
+    if (fabs(denominator) > 1e-6) {
+        t_vec3 point_to_plane = vec3_sub(plane->point, ray_origin);
+        double t = vec2_dot(point_to_plane, plane->normal) / denominator;
+        if (t >= 0) {
+            return t;
+        }
+    }
+    return -1.0; // No intersection
+}
+
+double intersect_cylindre(t_cylinder *cy, t_vec3 ray_origin, t_vec3 ray_dir, int *v)
 {
 	t_vec3 normal = vec3_norm(cy->axis);
 	
@@ -88,16 +127,14 @@ double intersect_cylindre(t_cylinder *cy, t_vec3 ray_origin, t_vec3 ray_dir)
 	bool bol[2];
 
 	t_vec3 dir = handle_coor(d, normal);
-    t_vec3 o = vec3_sub(pos, cy->center); // (0 , 0, 5)
+    t_vec3 o = vec3_sub(pos, cy->center); 
 	t_vec3 oc = handle_coor(o, normal);
-    double a = vec2_dot(dir, dir); // 1;
-    double b = 2.0 * vec2_dot(oc, dir); //[0 , -10]
-    double c = vec2_dot(oc, oc) - (cy->diameter * cy->diameter); //[0 ,25]
+    double a = vec2_dot(dir, dir); 
+    double b = 2.0 * vec2_dot(oc, dir); 
+    double c = vec2_dot(oc, oc) - (cy->diameter * cy->diameter); 
     double discriminant = b * b - 4 * a * c; 
-
-	//printf("%f\n", discriminant);
     if (discriminant < 0)
-        return -1; // No intersection
+        return -1; 
     else
     {
 		
@@ -113,50 +150,177 @@ double intersect_cylindre(t_cylinder *cy, t_vec3 ray_origin, t_vec3 ray_dir)
 		if(bol[0])
 			return t[0];
 		if(bol[0] == false &  bol[1] == true)
+		{
+			*v = 1;
 			return t[1];
+		}
 		return -1;
+
     }
 }
 
-double intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
+uint32_t to_color(uint8_t a,t_vec3 vec)
 {
-    double closest_t = -1.0;
-	double t;
+	return (((uint32_t)vec.x << 24 ) | ((uint32_t)vec.y << 16 ) | ((uint32_t)vec.z << 8) | a);
+}
 
+t_point set_data(double t , double s_t, int type, t_vec3 vec)
+{
+	t_point data;
+
+	data.t = t;
+	data.s_t = -1;
+	data.intersect = false;
+	if(t > 0 || s_t > 0)
+		data.intersect = true;
+	data.type = type;
+	data.color = vec;
+	return data;
+}
+
+t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
+{
+	t_point data;
+	double t;
+	t_vec3 vec;
+	int back_side;
+
+	back_side = 0;
+	uint32_t color;
     t_sphere *current_sphere = scene->object.sp_lst;
 	t_cylinder *current_cylindre = scene->object.cy_lst;
+	t_plane *current_plane = scene->object.pl_lst;
+	data = set_data(-1,-1, NONE, (t_vec3){0,0,0});
     while (current_sphere != NULL)
     {
         t = intersect_sphere(current_sphere, ray_origin, ray_dir);
-        if (t > 0 && (closest_t < 0 || t < closest_t))
-            closest_t = t;
+        if (t > 0 && (data.t < 0 || t < data.t))
+		{
+			vec = current_sphere->color;
+            data = set_data(t,-1,sphere,vec);
+			data.normal = current_sphere->center;
+		}
         current_sphere = current_sphere->next;
     }
 	while (current_cylindre != NULL)
     {
-        t = intersect_cylindre(current_cylindre, ray_origin, ray_dir);
-        if (t > 0 && (closest_t < 0 || t < closest_t))
-            closest_t = t;
+        t = intersect_cylindre(current_cylindre, ray_origin, ray_dir,&back_side);
+        if (t > 0 && (data.t < 0 || t < data.t))
+		{
+			vec = current_cylindre->color;
+			data = set_data(t,-1,cylinder, vec);
+			data.normal = vec3_norm(current_cylindre->axis);
+			//if(back_side)
+				//data = set_data(-1, t ,cylinder ,vec);
+		}
         current_cylindre = current_cylindre->next;
     }
-    return (closest_t);
+	while (current_plane != NULL)
+    {
+        t = intersect_plane(current_plane, ray_origin, ray_dir);
+        if (t > 0 && (data.t < 0 || t < data.t))
+		{
+			vec = current_plane->color;
+			data = set_data(t, 0, plane , vec);
+			data.normal = vec3_norm(current_plane->normal);
+		}
+        current_plane = current_plane->next;
+    }
+    return (data);
 }
 
-uint32_t ft_get_color(t_scene *scene,t_cam cam , float i, float j)
+t_point ft_get_color(t_scene *scene,t_cam cam , float i, float j)
 {
 	t_vec3 dir;
 	t_vec3 ori;
+	t_point data;
 	
 	ori = cam.pos;
 	dir = vec3_sub(color_scale(i,cam.hor), color_scale(-j,cam.ver));
 	dir = (t_vec3){dir.x + cam.c.x , dir.y + cam.c.y , dir.z + cam.c.z};
 	dir = vec3_norm(vec3_sub(dir, ori));
 
-	double t = intersect_objects(scene, ori,dir);
+	data.dir = dir;
+	data.ori = ori;
+	data = intersect_objects(scene, ori,dir);
+	return data;
+}
 
-	if(t < 0)
-		return 0xff000000;
-	return 0xffffffff;
+
+t_vec3 get_hit_point(t_point data)
+{
+	t_vec3 vec;
+	
+	vec = color_scale(data.t, data.dir);
+	vec.x = vec.x + data.ori.x;
+	vec.z = vec.z + data.ori.z;
+	vec.y = vec.y + data.ori.y;
+	
+	return vec;
+}
+
+t_vec3 shade_object(t_scene *scene, t_light *light, t_vec3 hit_point, t_vec3 surface_normal, t_vec3 ray_dir, t_vec3 color)
+{
+    // Calculate light direction and distance to the light source
+    t_vec3 light_dir = vec3_norm(vec3_sub(light->pos, hit_point));
+    double light_distance = vec3_length(vec3_sub(light->pos, hit_point));
+
+    // Check for shadows by casting a ray from the hit point to the light source
+    bool in_shadow = false;
+	t_sphere	*curr = scene->object.sp_lst;
+    // for (int i = 0; i < num_objects_in_scene; i++)
+	// {
+	while (curr)
+	{
+        // Check for intersection between the hit point and the object
+        t_point data = intersect_objects(scene, hit_point, light_dir);
+		double t = data.t;
+        if (t > 0 && t < light_distance) 
+		{
+            in_shadow = true;
+            break;
+        }
+		curr = curr->next;
+	}
+    // }
+
+	
+    // Calculate ambient and diffuse lighting components
+    t_vec3 ambient = color_scale(scene->amb.brightness,scene->amb.color);
+    t_vec3 diffuse = (in_shadow) ? (t_vec3){0, 0, 0} : color_scale(light->ratio * fmax(0.0, vec2_dot(surface_normal, light_dir)), color);
+
+    // Combine ambient and diffuse lighting for shading
+    t_vec3 shading = vec3_add(ambient, diffuse);
+
+    return (shading);
+}
+
+t_vec3 shade_objects(t_scene *scene, t_vec3 hit_point, t_vec3 surface_normal, t_vec3 ray_dir, t_vec3 c)
+{
+    t_vec3 shading = (t_vec3){0, 0, 0};
+	t_vec3 color;
+
+    // Iterate through the linked list and shade each object
+    t_sphere *current_sphere = scene->object.sp_lst;
+    while (current_sphere != NULL)
+    {
+		color = current_sphere->color;
+        if (vec3_length(vec3_sub(hit_point, current_sphere->center)) <= current_sphere->radius)
+		{
+			color = current_sphere->color;
+            shading = vec3_add(shading, shade_object(scene, &scene->light, hit_point, surface_normal, ray_dir, color));
+		}
+        current_sphere = current_sphere->next;
+    }
+
+    // Similar shading for other objects
+	if (scene->plane.set)
+	{
+        shading = vec3_add(shading, shade_object(scene, &scene->light, hit_point, surface_normal, ray_dir, color));
+		t_vec3 shading = shade_object(scene, &scene->light, hit_point, surface_normal, ray_dir,color);
+		return (shading);
+	}
+    return (shading);
 }
 
 
@@ -165,16 +329,38 @@ void ft_drew(t_scene *scene, mlx_image_t *img)
 {
 	int i;
 	int j;
-	uint32_t color;
+	t_point data;
+	t_vec3 hit_point;
+	t_vec3 normal;
+	t_vec3 shading;
 
-	j = 0; 
+	j = 0; 	
 	while(j < HEIGHT - 1) 
 	{
 		i = 0;
 		while(i < WIDTH - 1)
 		{
-			color = ft_get_color(scene,scene->cam, (float)i / WIDTH , (float)j / HEIGHT); 
-			mlx_put_pixel(img, i, j, color);
+			data= ft_get_color(scene,scene->cam, (float)i / WIDTH , (float)j / HEIGHT); 
+			if(data.intersect == true  && data.type == plane)
+			{
+				hit_point = get_hit_point(data);
+				if(vec2_dot(data.dir, data.normal) > 0)
+					data.normal = color_scale(-1, data.normal);
+				normal = data.normal; 
+				shading = shade_objects(scene, hit_point, normal, data.dir, data.color);
+				mlx_put_pixel(img, i, j, to_color(255,shading));
+			}
+			if(data.intersect == true && data.type == sphere)
+			{
+				hit_point = get_hit_point(data);
+				normal = vec3_sub(hit_point,data.normal); // data.ormal is center of shpere
+				normal = vec3_norm(normal);
+				shading = shade_objects(scene, hit_point, normal, data.dir, data.color);
+				uint32_t color = to_color(255,shading);
+				mlx_put_pixel(img, i, j, color);
+			}
+			//if(data.intersect == true)
+			mlx_put_pixel(img, i, j, 0xff000000);
 			i++;
 		}
 		j++;

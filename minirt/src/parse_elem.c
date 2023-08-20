@@ -72,7 +72,7 @@ void	parse_plane(t_scene *scene, char **split)
 	parse_vec3(split[2], &(new_plane->normal));
 	parse_color(split[3], &(new_plane->color));
 	scene->plane.set = true;
-  add_plane_to_back(&(scene->object.pl_lst), new_plane);
+  	add_plane_to_back(&(scene->object.pl_lst), new_plane);
 }
 void	parse_cylinder(t_scene *scene, char **split)
 {
@@ -86,5 +86,5 @@ void	parse_cylinder(t_scene *scene, char **split)
 	stod(split[4], &(new_cylinder->height));
 	parse_color(split[5], &(new_cylinder->color));
 	scene->cylinder.set = true;
-  add_cylinder_to_back(&(scene->object.cy_lst), new_cylinder);
+  	add_cylinder_to_back(&(scene->object.cy_lst), new_cylinder);
 }

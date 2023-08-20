@@ -22,12 +22,6 @@
 #define WIDTH 800
 #define HEIGHT 600
 
-//enum e_error t_error;
-
-/*enum e_error {
-    inv_ext,
-    inv_file
-};*/
 typedef struct 	s_scene		t_scene;
 typedef struct 	s_set		t_set;
 typedef struct 	s_cam		t_cam;
@@ -38,12 +32,33 @@ typedef struct	s_object	t_object;
 typedef struct s_sphere		t_sphere;
 typedef struct s_cylinder	t_cylinder;
 typedef struct s_plane		t_plane;
+typedef struct s_p		t_point;
+typedef enum e_type	type;
 
+
+enum e_type
+{
+	NONE,
+	plane,
+	cylinder,
+	sphere
+};
 struct s_vec3
 {
 	double	x;
 	double	y;
 	double	z;
+};
+struct  s_p
+{
+	bool intersect;
+	double t;
+	double s_t;
+	int type;
+	t_vec3 dir;
+	t_vec3 ori;
+	t_vec3 normal;
+	t_vec3 color;
 };
 
 	struct s_cam
