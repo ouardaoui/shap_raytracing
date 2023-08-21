@@ -190,7 +190,7 @@ t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
     t_sphere *current_sphere = scene->object.sp_lst;
 	t_cylinder *current_cylindre = scene->object.cy_lst;
 	t_plane *current_plane = scene->object.pl_lst;
-	data = set_data(-1,-1, NONE, (t_vec3){0,0,0});
+	data = set_data(-1,-1, NONE, (t_vec3){0.0,0.0,0.0});
     while (current_sphere != NULL)
     {
         t = intersect_sphere(current_sphere, ray_origin, ray_dir);
@@ -259,81 +259,51 @@ t_vec3 get_hit_point(t_point data)
 	return vec;
 }
 
-t_vec3 shade_object(t_scene *scene, t_light *light, t_vec3 hit_point, t_vec3 surface_normal, t_vec3 ray_dir, t_vec3 color)
+t_point handle_shadow(t_vec3 pts, t_vec3 n, t_light *li,t_scene *scene)
 {
-    // Calculate light direction and distance to the light source
-    t_vec3 light_dir = vec3_norm(vec3_sub(light->pos, hit_point));
-    double light_distance = vec3_length(vec3_sub(light->pos, hit_point));
-
-    // Check for shadows by casting a ray from the hit point to the light source
-    bool in_shadow = false;
-	t_sphere	*curr = scene->object.sp_lst;
-    // for (int i = 0; i < num_objects_in_scene; i++)
-	// {
-	while (curr)
-	{
-        // Check for intersection between the hit point and the object
-        t_point data = intersect_objects(scene, hit_point, light_dir);
-		double t = data.t;
-        if (t > 0 && t < light_distance) 
-		{
-            in_shadow = true;
-            break;
-        }
-		curr = curr->next;
-	}
-    // }
-
-	
-    // Calculate ambient and diffuse lighting components
-    t_vec3 ambient = color_scale(scene->amb.brightness,scene->amb.color);
-    t_vec3 diffuse = (in_shadow) ? (t_vec3){0, 0, 0} : color_scale(light->ratio * fmax(0.0, vec2_dot(surface_normal, light_dir)), color);
-
-    // Combine ambient and diffuse lighting for shading
-    t_vec3 shading = vec3_add(ambient, diffuse);
-
-    return (shading);
+	t_vec3 ori = vec3_add(pts,color_scale(0.0001, n));
+	t_vec3 dir = vec3_norm(vec3_sub(li->pos,ori));
+	return(intersect_objects(scene,ori,dir));
 }
 
-t_vec3 shade_objects(t_scene *scene, t_vec3 hit_point, t_vec3 surface_normal, t_vec3 ray_dir, t_vec3 c)
+t_vec3			c_comp(t_light *light, t_point shadow, t_vec3 hit_point)
 {
-    t_vec3 shading = (t_vec3){0, 0, 0};
-	t_vec3 color;
+	t_vec3		light_normal;
+	float		gain;
+	float		r2;
+	float		light_bright;
+	t_vec3 shadow_color;
+	int light_color;
 
-    // Iterate through the linked list and shade each object
-    t_sphere *current_sphere = scene->object.sp_lst;
-    while (current_sphere != NULL)
-    {
-		color = current_sphere->color;
-        if (vec3_length(vec3_sub(hit_point, current_sphere->center)) <= current_sphere->radius)
-		{
-			color = current_sphere->color;
-            shading = vec3_add(shading, shade_object(scene, &scene->light, hit_point, surface_normal, ray_dir, color));
-		}
-        current_sphere = current_sphere->next;
-    }
-
-    // Similar shading for other objects
-	if (scene->plane.set)
-	{
-        shading = vec3_add(shading, shade_object(scene, &scene->light, hit_point, surface_normal, ray_dir, color));
-		t_vec3 shading = shade_object(scene, &scene->light, hit_point, surface_normal, ray_dir,color);
-		return (shading);
-	}
-    return (shading);
+	light_normal = vec3_sub(light->pos, hit_point);
+	r2 = vec2_dot(light_normal,light_normal);
+	gain = vec2_dot(vec3_norm(light_normal), shadow.normal);
+	if (gain <= 0)
+		light_bright = 0;
+	else
+		light_bright = (light->ratio * gain * 1000) /
+						(4.0 * 3.1415 * r2);
+	//shadow_color = to_color(0,color_scale(255,shadow.color));
+	//light_color = to_color(0,color_scale(255,light->color));	
+	shadow_color = color_scale(light_bright, shadow.color);	
+	return vec3_dot(shadow_color,light->color);
+	//return (c_prod(c_add(0, c_scale(shadow_color, light_bright)), light_color));
 }
-
-
 
 void ft_drew(t_scene *scene, mlx_image_t *img)
 {
 	int i;
 	int j;
 	t_point data;
+	t_point shadow;
 	t_vec3 hit_point;
 	t_vec3 normal;
-	t_vec3 shading;
+	t_light *li;
+	uint32_t color;
+	t_vec3 c;
 
+	color = 0;
+	li = scene->object.li_lst;
 	j = 0; 	
 	while(j < HEIGHT - 1) 
 	{
@@ -341,26 +311,50 @@ void ft_drew(t_scene *scene, mlx_image_t *img)
 		while(i < WIDTH - 1)
 		{
 			data= ft_get_color(scene,scene->cam, (float)i / WIDTH , (float)j / HEIGHT); 
+			c = vec3_dot(data.color, scene->amb.color);
 			if(data.intersect == true  && data.type == plane)
 			{
 				hit_point = get_hit_point(data);
 				if(vec2_dot(data.dir, data.normal) > 0)
 					data.normal = color_scale(-1, data.normal);
 				normal = data.normal; 
-				shading = shade_objects(scene, hit_point, normal, data.dir, data.color);
-				mlx_put_pixel(img, i, j, to_color(255,shading));
+				//mlx_put_pixel(img, i,HEIGHT - 1 - j, to_color(255,color_scale(255,data.color)));
 			}
 			if(data.intersect == true && data.type == sphere)
 			{
 				hit_point = get_hit_point(data);
 				normal = vec3_sub(hit_point,data.normal); // data.ormal is center of shpere
 				normal = vec3_norm(normal);
-				shading = shade_objects(scene, hit_point, normal, data.dir, data.color);
-				uint32_t color = to_color(255,shading);
-				mlx_put_pixel(img, i, j, color);
+				//mlx_put_pixel(img,i,HEIGHT - 1 - j, to_color(255,color_scale(255,data.color)));
 			}
-			//if(data.intersect == true)
-			mlx_put_pixel(img, i, j, 0xff000000);
+			if(data.intersect == true)
+			{
+				//while(li)
+				//{
+					shadow = handle_shadow(hit_point,normal,li,scene);
+					if(shadow.intersect == true)
+					{
+						c = vec3_add(c,c_comp(li,data, hit_point));
+					}
+					color = to_color(255,color_scale(255,c));
+					li = li->next;
+				//}
+				mlx_put_pixel(img, i,HEIGHT - 1 - j,color);
+				//mlx_put_pixel(img,i,HEIGHT - 1 - j, to_color(255,color_scale(255,data.color)));
+				/*while(li)
+				{
+					shadow = handle_shadow(hit_point,normal,li,scene);
+					if(shadow.intersect == true)
+					{					
+						color = c_add(color,c_comp(li, shadow));
+					}
+					printf("%x\n", color);
+					li = li->next;
+					//mlx_put_pixel(img, i,HEIGHT - 1 - j,color);
+				}*/
+			}
+			else 
+					mlx_put_pixel(img, i,HEIGHT - 1 - j,0xff000000);
 			i++;
 		}
 		j++;

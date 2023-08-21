@@ -20,8 +20,8 @@ SRCS = src/main.c \
 	src/parsing_tools.c \
 	src/list_tools.c \
 	src/get_next_line.c \
-	src/render.c
-		
+	src/render.c \
+	src/shading_tools.c	
 NAME = miniRT
 
 all: $(NAME)

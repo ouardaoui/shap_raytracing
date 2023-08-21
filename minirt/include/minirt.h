@@ -177,5 +177,9 @@ t_plane *create_plane_node() ;
 void add_light_to_back(t_light **lst, t_light *new_node);
 t_light *create_light_node();
 void render_scene(t_scene  *scene, mlx_image_t *img);
+int	check_rgb(int nbr);
+int			c_scale(int colour, float f);
+int			c_prod(int c1, int c2);
+int			c_add(int c1, int c2);
 
 #endif // MINIRT_H
