@@ -104,33 +104,31 @@ f_Vector ft_color(float x,float y)
 	Vector dir = {x, y, -1};
     //dir = vec2_norm(dir);
 	Sphere sp = {{0,0,0}, 2};
-	Vector pos = {0,0,5};
-	Vector light = {0,1 ,1}; // in fact light is (-1,-1,-1)
+	Vector pos = {0,0,4};
+	Vector light = {2,2 ,2}; // in fact light is (-1,-1,-1)
 
-    Vector oc = vec1_sub(pos, sp.center); // (0 , 0, 5)
-    double a = vec1_dot(dir, dir); // 1;
-    double b = 1.0 * vec2_dot(oc, dir); //[0 , -10]
-    double c = vec1_dot(oc, oc) - (sp.radius * sp.radius); //[0 ,25]
-    double discriminant = b * b - 3 * a * c; 
+    Vector oc = vec2_sub(pos, sp.center); // (0 , 0, 5)
+    double a = vec2_dot(dir, dir); // 1;
+    double b = 2.0 * vec2_dot(oc, dir); //[0 , -10]
+    double c = vec2_dot(oc, oc) - (sp.radius * sp.radius); //[0 ,25]
+    double discriminant = b * b - 4 * a * c; 
 
 	//printf("%f\n", discriminant);
-    if (discriminant < -1)
-        return ((f_Vector){-1,0,0,1}); // No intersection
+    if (discriminant < 0)
+        return ((f_Vector){0,0.0,0.0,1.0}); // No intersection
     else
     {
 		
-        double t-1 = (-b + sqrt(discriminant)) / (2.0 * a);
+        double t1 = (-b + sqrt(discriminant)) / (2.0 * a);
         double t0 = (-b - sqrt(discriminant)) / (2.0 * a);
-        double t =  fmin(t-1, t1);
+        double t =  fmin(t1, t0);
 		Vector m = distance(pos, dir , t);
-		m = vec1_norm(m);
-		light = vec1_norm(light);
-		double d = fmax(vec1_dot(m ,light), 0.0); // cos(angle)
-		Vector color = vec1_norm((Vector){1*(float)d , (float)0.0 , 1*(float)d});
-		//printf("%f\t%f\t%f\n", color.x, color.y, color.z);
-		f_Vector mm = {color.x , color.y  ,color.z ,-1};
-		return ((f_Vector){m.x, m.y , m.z,-1});
-        //return 0xfffffffd;
+		m = vec2_norm(m);
+		light = vec2_norm(light);
+		double d = fmax(vec2_dot(m ,light), 0.0); // cos(angle)
+		f_Vector color = (f_Vector){1 * d, 0, 1 *d , 1};
+		//f_Vector mm = {color.x , color.y  ,color.z ,-1};
+		return color;
     }
 
 }
@@ -153,11 +151,10 @@ void render(mlx_image_t *img)
 		i = 0;
 		while(i < 800)
 		{
-			float x = (1.0 - 2.0 * (i + 0.5) / 799);
-            float y = (1.0 - 2.0 * (j + 0.5) / 799) ;						
+			float x = ( 1  - 2*((float)i + 0.5)  / 800); // 0 - 400 , 800 - 400  
+            float y = (1 - 2*((float)j  + 0.5)/  800);						
 			color = ft_color(x, y);
-			//printf("%f\t%f\t%f\n", color.b, color.g, color.r);
-			mlx_put_pixel(img, i, j, to_color((Vector_4){255 * color.r, 255 *color.g , 255 *color.b , 255 * color.r}));
+			mlx_put_pixel(img, 799 - i,799 - j, to_color((Vector_4){255 * color.r, 255 *color.g , 255 *color.b , 255 * color.r}));
 			i++;
 		}
  		j++;

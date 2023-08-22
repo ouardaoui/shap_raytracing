@@ -227,7 +227,6 @@ void render(mlx_image_t *img)
 			float x = (1.0 - 2.0 * (i + 0.5) / 799);
             float y = (1.0 - 2.0 * (j + 0.5) / 799) ;						
 			color = ft_color(x, y);
-			//printf("%f\t%f\t%f\n", color.b, color.g, color.r);
 			mlx_put_pixel(img, i, j, to_color((Vector_4){255 * color.r, 255 *color.g , 255 *color.b , 255 * color.r}));
 			i++;
 		}
@@ -242,7 +241,7 @@ int main()
 		ft_error();
 
 
-	mlx_image_t* img = mlx_new_image(mlx, 799, 800);
+	mlx_image_t* img = mlx_new_image(mlx, 800, 800);
 	if (!img || (mlx_image_to_window(mlx, img, -1, 0) < 0))
 		ft_error();
 
