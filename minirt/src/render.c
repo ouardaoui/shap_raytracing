@@ -68,7 +68,9 @@ t_cam ft_cam(t_scene *scene)
 	t_vec3	u;
 	t_vec3	v;
 
-	vp[0] = 2 * tan((float)cam.fov / 2);
+
+	float f = (float)cam.fov * 22 / (float)1260;
+	vp[0] = 2 * tan((float)f / 2);
 	vp[1] = vp[0] * (float)HEIGHT  / WIDTH;
 	w = vec3_norm(color_scale(-1,cam.dir));
 	u = vec3_cross((t_vec3){0, 1, 0}, w);
@@ -77,7 +79,7 @@ t_cam ft_cam(t_scene *scene)
 	cam.ver = color_scale(vp[1],v);
 	cam.c = vec3_sub(cam.pos, color_scale(0.5 ,cam.hor));
 	cam.c = vec3_sub(cam.c, color_scale(0.5 , cam.ver));
-	cam.c = vec3_sub(cam.c, w); //lower view corner
+	cam.c = vec3_sub(cam.c, w); //lower view corner;
     return cam;
 }
 
@@ -200,12 +202,13 @@ t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
 	data.ori = ray_origin;
     while (current_sphere != NULL)
     {
-        t = intersect_sphere(current_sphere, ray_origin, ray_dir);
+	    t = intersect_sphere(current_sphere, ray_origin, ray_dir);
         if (t > 0 && (data.t < 0 || t < data.t))
 		{
 			vec = current_sphere->color;
-            data = set_data(t,-1,sphere,vec);
+			data = set_data(t,-1,sphere,vec);
 			data.dir = (t_vec3){ray_dir.x,ray_dir.y,ray_dir.z};
+			data.ori = (t_vec3){ray_origin.x, ray_origin.y,ray_origin.z};
 			data.normal = current_sphere->center;
 		}
         current_sphere = current_sphere->next;
@@ -257,12 +260,11 @@ t_point ft_get_color(t_scene *scene,t_cam cam , float i, float j)
 t_vec3 get_hit_point(t_point data)
 {
 	t_vec3 vec;
-	
+
 	vec = color_scale(data.t, data.dir);
 	vec.x = vec.x + data.ori.x;
 	vec.y = vec.y + data.ori.y;
 	vec.z = vec.z + data.ori.z;
-	
 	return vec;
 }
 
@@ -347,15 +349,13 @@ void ft_drew(t_scene *scene, mlx_image_t *img)
 					tmp = tmp->next;
 				}
 				*/
-				//c = vec3_dot(data.color, c);
-				
+				c = vec3_dot(data.color, c);
 				t_vec3 normal = vec3_norm(hit_point);
+				normal = (t_vec3){normal.x, normal.y , normal.z };
 				t_vec3 l_dir = vec3_norm(li->pos);
-				l_dir.z = l_dir.z * -1;
 				float d = fmax(0.0,vec2_dot(normal ,l_dir));
-				c = color_scale(d,data.color);
+				c = color_scale(0.5,normal);
 				color = to_color(255,color_scale(255,c));
-				
 				mlx_put_pixel(img, i,HEIGHT - 1 - j,color);
 			}
 			else 

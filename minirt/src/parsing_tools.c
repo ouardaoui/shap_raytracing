@@ -46,10 +46,10 @@ void	stoi(char *s, int min, int max, int *res)
 {
 	int	i;
 
+
 	i = 0;
 	if (s[0] && (s[0] == '+' || s[0] == '-'))
 		i++;
-	
 	*res = ft_atoi(s);
 	if (*res < min || *res > max)
 		exit (1);

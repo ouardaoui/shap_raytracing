@@ -42,6 +42,19 @@ Vector vec2_norm(Vector a)
     return (b);
 }
 
+Vector normalize(Vector a)
+{
+	Vector b;
+    double length = sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+    double alpha = 1.0 / length;
+
+	b.x  = a.x * alpha;
+	b.y  = a.y * alpha;
+	b.z  = a.z * alpha;
+    return (b);
+}
+
+
 Vector_4 vec4_norm(Vector_4 a)
 {
 	Vector_4 b;
@@ -103,9 +116,9 @@ f_Vector ft_color(float x,float y)
 
 	Vector dir = {x, y, -1};
     //dir = vec2_norm(dir);
-	Sphere sp = {{0,0,0}, 2};
-	Vector pos = {0,0,4};
-	Vector light = {2,2 ,2}; // in fact light is (-1,-1,-1)
+	Sphere sp = {{0,0,0}, 0.5};
+	Vector pos = {0,0,1};
+	Vector light = {1,1 ,1}; 
 
     Vector oc = vec2_sub(pos, sp.center); // (0 , 0, 5)
     double a = vec2_dot(dir, dir); // 1;
@@ -113,22 +126,23 @@ f_Vector ft_color(float x,float y)
     double c = vec2_dot(oc, oc) - (sp.radius * sp.radius); //[0 ,25]
     double discriminant = b * b - 4 * a * c; 
 
-	//printf("%f\n", discriminant);
+	printf("%f\t%f\t%f\t%f\n", discriminant,a, b, c);
     if (discriminant < 0)
-        return ((f_Vector){0,0.0,0.0,1.0}); // No intersection
+        return ((f_Vector){0,0.0,0.0,0.0}); // No intersection
     else
     {
-		
         double t1 = (-b + sqrt(discriminant)) / (2.0 * a);
         double t0 = (-b - sqrt(discriminant)) / (2.0 * a);
         double t =  fmin(t1, t0);
 		Vector m = distance(pos, dir , t);
-		m = vec2_norm(m);
-		light = vec2_norm(light);
+		m = normalize(m);
+
+		light = normalize(light);
+		//light = (Vector){-light.x, -light.y, -light.z};
 		double d = fmax(vec2_dot(m ,light), 0.0); // cos(angle)
 		f_Vector color = (f_Vector){1 * d, 0, 1 *d , 1};
 		//f_Vector mm = {color.x , color.y  ,color.z ,-1};
-		return color;
+		return ((f_Vector){color.r , color.g, color.b, color.a});
     }
 
 }
@@ -146,15 +160,18 @@ void render(mlx_image_t *img)
 	int j = 0;
 	f_Vector color;
 	
-	while(j < 800)
+	while(j < 799)
 	{
 		i = 0;
-		while(i < 800)
+		while(i < 799)
 		{
-			float x = ( 1  - 2*((float)i + 0.5)  / 800); // 0 - 400 , 800 - 400  
-            float y = (1 - 2*((float)j  + 0.5)/  800);						
+		
+			float x = i  / (float)799; // 0 - 400 , 800 - 400  
+            float y = j /  (float)799;
+			x = 2.0 * x - 1;						
+			y = 2.0 * y - 1;
 			color = ft_color(x, y);
-			mlx_put_pixel(img, 799 - i,799 - j, to_color((Vector_4){255 * color.r, 255 *color.g , 255 *color.b , 255 * color.r}));
+			mlx_put_pixel(img, i, 800 - j, to_color((Vector_4){color.r * 255, color.g * 255, color.b *255, 255}));
 			i++;
 		}
  		j++;
@@ -168,8 +185,8 @@ int main()
 		ft_error();
 
 
-	mlx_image_t* img = mlx_new_image(mlx, 799, 800);
-	if (!img || (mlx_image_to_window(mlx, img, -1, 0) < 0))
+	mlx_image_t* img = mlx_new_image(mlx, 800, 800);
+	if (!img || (mlx_image_to_window(mlx, img, 0, 0) < 0))
 		ft_error();
 
 	render(img);
