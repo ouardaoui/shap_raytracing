@@ -126,7 +126,6 @@ f_Vector ft_color(float x,float y)
     double c = vec2_dot(oc, oc) - (sp.radius * sp.radius); //[0 ,25]
     double discriminant = b * b - 4 * a * c; 
 
-	printf("%f\t%f\t%f\t%f\n", discriminant,a, b, c);
     if (discriminant < 0)
         return ((f_Vector){0,0.0,0.0,0.0}); // No intersection
     else
@@ -188,9 +187,7 @@ int main()
 	mlx_image_t* img = mlx_new_image(mlx, 800, 800);
 	if (!img || (mlx_image_to_window(mlx, img, 0, 0) < 0))
 		ft_error();
-
 	render(img);
-
 	mlx_loop_hook(mlx,ft_hook ,mlx);
 	mlx_loop(mlx);
 	mlx_terminate(mlx);
