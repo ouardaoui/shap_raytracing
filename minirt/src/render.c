@@ -199,7 +199,6 @@ t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
 	t_cylinder *current_cylindre = scene->object.cy_lst;
 	t_plane *current_plane = scene->object.pl_lst;
 	data = set_data(-1,-1, NONE, (t_vec3){0.0,0.0,0.0});
-	data.ori = ray_origin;
     while (current_sphere != NULL)
     {
 	    t = intersect_sphere(current_sphere, ray_origin, ray_dir);
@@ -222,6 +221,7 @@ t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
 			data = set_data(t,-1,cylinder, vec);
 			data.dir = (t_vec3){ray_dir.x,ray_dir.y,ray_dir.z};
 			data.normal = vec3_norm(current_cylindre->axis);
+			data.ori = (t_vec3){ray_origin.x, ray_origin.y,ray_origin.z};
 			//if(back_side)
 				//data = set_data(-1, t ,cylinder ,vec);
 		}
@@ -236,6 +236,7 @@ t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
 			data = set_data(t, 0, plane , vec);
 			data.dir = (t_vec3){ray_dir.x,ray_dir.y,ray_dir.z};
 			data.normal = vec3_norm(current_plane->normal);
+			data.ori = (t_vec3){ray_origin.x, ray_origin.y,ray_origin.z};
 		}
         current_plane = current_plane->next;
     }
@@ -338,7 +339,7 @@ void ft_drew(t_scene *scene, mlx_image_t *img)
 			{
 				
 				t_light *tmp = li;
-				/*while(tmp)
+				while(tmp)
 				{
 					shadow = handle_shadow(hit_point,normal,tmp,scene);
 					if(shadow.intersect == true)
@@ -348,14 +349,15 @@ void ft_drew(t_scene *scene, mlx_image_t *img)
 					color = to_color(255,color_scale(255,c));
 					tmp = tmp->next;
 				}
-				*/
-				c = vec3_dot(data.color, c);
+				/*
 				t_vec3 normal = vec3_norm(hit_point);
-				normal = (t_vec3){normal.x, normal.y , normal.z };
-				t_vec3 l_dir = vec3_norm(li->pos);
-				float d = fmax(0.0,vec2_dot(normal ,l_dir));
-				c = color_scale(0.5,normal);
+				normal = vec3_norm(normal);
+			    t_vec3  light = scene->object.li_lst->pos ;
+				light = vec3_norm(light);
+				float d = fmax(0.0,vec2_dot(normal ,light));
+				c = color_scale(d,c);
 				color = to_color(255,color_scale(255,c));
+				*/
 				mlx_put_pixel(img, i,HEIGHT - 1 - j,color);
 			}
 			else 
