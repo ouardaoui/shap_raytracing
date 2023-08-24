@@ -118,7 +118,7 @@ f_Vector ft_color(float x,float y)
     //dir = vec2_norm(dir);
 	Sphere sp = {{0,0,0}, 0.5};
 	Vector pos = {0,0,1};
-	Vector light = {1,1 ,1}; 
+	Vector light = {1,0 ,0}; 
 
     Vector oc = vec2_sub(pos, sp.center); // (0 , 0, 5)
     double a = vec2_dot(dir, dir); // 1;
@@ -127,7 +127,7 @@ f_Vector ft_color(float x,float y)
     double discriminant = b * b - 4 * a * c; 
 
     if (discriminant < 0)
-        return ((f_Vector){0,0.0,0.0,0.0}); // No intersection
+        return ((f_Vector){1,1.0,1.0,1.0}); // No intersection
     else
     {
         double t1 = (-b + sqrt(discriminant)) / (2.0 * a);
@@ -139,7 +139,7 @@ f_Vector ft_color(float x,float y)
 		light = normalize(light);
 		//light = (Vector){-light.x, -light.y, -light.z};
 		double d = fmax(vec2_dot(m ,light), 0.0); // cos(angle)
-		f_Vector color = (f_Vector){1 * d, 0, 1 *d , 1};
+		f_Vector color = (f_Vector){1 * d, 1 *d, 1 	*d , 1};
 		//f_Vector mm = {color.x , color.y  ,color.z ,-1};
 		return ((f_Vector){color.r , color.g, color.b, color.a});
     }

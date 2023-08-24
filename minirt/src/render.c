@@ -90,7 +90,6 @@ double intersect_sphere(t_sphere *sphere, t_vec3 ray_origin, t_vec3 ray_dir)
     double b = 2.0 * vec2_dot(oc, ray_dir);
     double c = vec2_dot(oc, oc) - sphere->radius * sphere->radius;
     double discriminant = b * b - 4 * a * c;
-
     if (discriminant < 0)
         return (-1.0); // No intersection
     else
@@ -199,10 +198,11 @@ t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
 	t_cylinder *current_cylindre = scene->object.cy_lst;
 	t_plane *current_plane = scene->object.pl_lst;
 	data = set_data(-1,-1, NONE, (t_vec3){0.0,0.0,0.0});
+	data.t = MAX_T;
     while (current_sphere != NULL)
     {
 	    t = intersect_sphere(current_sphere, ray_origin, ray_dir);
-        if (t > 0 && (data.t < 0 || t < data.t))
+        if (t > 0 && t < data.t)
 		{
 			vec = current_sphere->color;
 			data = set_data(t,-1,sphere,vec);
@@ -215,7 +215,7 @@ t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
 	while (current_cylindre != NULL)
     {
         t = intersect_cylindre(current_cylindre, ray_origin, ray_dir,&back_side);
-        if (t > 0 && (data.t < 0 || t < data.t))
+        if (t > 0 &&  t < data.t)
 		{
 			vec = current_cylindre->color;
 			data = set_data(t,-1,cylinder, vec);
@@ -310,6 +310,7 @@ void ft_drew(t_scene *scene, mlx_image_t *img)
 	t_vec3 normal;
 	t_light *li;
 	uint32_t color;
+	t_vec3 am;
 	t_vec3 c;
 
 	color = 0;
@@ -321,7 +322,8 @@ void ft_drew(t_scene *scene, mlx_image_t *img)
 		while(i < WIDTH - 1)
 		{
 			data= ft_get_color(scene,scene->cam, (float)i / WIDTH , (float)j / HEIGHT); 
-			c = vec3_dot(data.color, scene->amb.color);
+			am = (t_vec3){1 * scene->amb.brightness,1 *scene->amb.brightness,1 * scene->amb.brightness};
+			c = vec3_dot(data.color, am);
 			if(data.intersect == true  && data.type == plane)
 			{
 				hit_point = get_hit_point(data);
@@ -337,15 +339,15 @@ void ft_drew(t_scene *scene, mlx_image_t *img)
 			}
 			if(data.intersect == true)
 			{
-				
 				t_light *tmp = li;
 				while(tmp)
 				{
 					shadow = handle_shadow(hit_point,normal,tmp,scene);
-					if(shadow.intersect == true)
+					if(shadow.intersect == false)
 					{
 						c = vec3_add(c,c_comp(tmp,data, hit_point));
 					}
+
 					color = to_color(255,color_scale(255,c));
 					tmp = tmp->next;
 				}

@@ -21,6 +21,7 @@
 
 #define WIDTH 800
 #define HEIGHT 800
+#define MAX_T 100000000000
 
 typedef struct 	s_scene		t_scene;
 typedef struct 	s_set		t_set;
