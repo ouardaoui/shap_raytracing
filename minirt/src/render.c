@@ -371,7 +371,7 @@ void ft_drew(t_scene *scene, mlx_image_t *img)
 				c = vec3_dot(data.color, am);
 
 				t_light *tmp = li;
-				if(tmp)
+				while(tmp)
 				{
 					shadow = handle_shadow(hit_point,normal,tmp,scene);
 					if(shadow.intersect == false)
