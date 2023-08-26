@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-CC		= cc
+CC		= gcc
 CFLAGS = -Wall -Werror -Wextra
 LIBMLX = ../unix/libmlx42.a
 SRCS = src/main.c \
@@ -27,7 +27,7 @@ NAME = miniRT
 all: $(NAME)
 
 $(NAME): $(SRCS)
-	@$(CC) $(FLAGS) $(SRCS) $(LIBMLX) src/libft.a -lglfw -lm -o $(NAME)
+	@$(CC) $(FLAGS) $(SRCS) $(LIBMLX) src/libft.a -lglfw -lm -pthread -o $(NAME)
 
 run:
 	make re && ./miniRT

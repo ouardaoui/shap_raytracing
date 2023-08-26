@@ -1,5 +1,10 @@
-
 #include "../include/minirt.h"
+
+
+void print(t_vec3 a)
+{
+	printf("%f\t%f\t%f\n", a.x, a.y , a.z);
+}
 
 t_vec3		vec3_cross(t_vec3 v, t_vec3 u)
 {
@@ -90,8 +95,9 @@ double intersect_sphere(t_sphere *sphere, t_vec3 ray_origin, t_vec3 ray_dir)
     double b = 2.0 * vec2_dot(oc, ray_dir);
     double c = vec2_dot(oc, oc) - sphere->radius * sphere->radius;
     double discriminant = b * b - 4 * a * c;
+
     if (discriminant < 0)
-        return (-1.0); // No intersection
+        return (-1.0); 
     else
     {
         double t1 = (-b + sqrt(discriminant)) / (2.0 * a);
@@ -177,9 +183,7 @@ t_point set_data(double t , double s_t, int type, t_vec3 vec)
 
 	data.t = t;
 	data.s_t = -1;
-	data.intersect = false;
-	if(t > 0 || s_t > 0)
-		data.intersect = true;
+	data.intersect = true;
 	data.type = type;
 	data.color = vec;
 	return data;
@@ -187,10 +191,10 @@ t_point set_data(double t , double s_t, int type, t_vec3 vec)
 
 t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
 {
-	t_point data;
 	double t;
 	t_vec3 vec;
 	int back_side;
+	t_point data;
 
 	back_side = 0;
 	uint32_t color;
@@ -199,10 +203,11 @@ t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
 	t_plane *current_plane = scene->object.pl_lst;
 	data = set_data(-1,-1, NONE, (t_vec3){0.0,0.0,0.0});
 	data.t = MAX_T;
+	data.intersect = false;
     while (current_sphere != NULL)
     {
 	    t = intersect_sphere(current_sphere, ray_origin, ray_dir);
-        if (t > 0 && t < data.t)
+        if (t >= 0.000001 && t < data.t)
 		{
 			vec = current_sphere->color;
 			data = set_data(t,-1,sphere,vec);
@@ -212,6 +217,7 @@ t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
 		}
         current_sphere = current_sphere->next;
     }
+	/*
 	while (current_cylindre != NULL)
     {
         t = intersect_cylindre(current_cylindre, ray_origin, ray_dir,&back_side);
@@ -219,18 +225,22 @@ t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
 		{
 			vec = current_cylindre->color;
 			data = set_data(t,-1,cylinder, vec);
-			data.dir = (t_vec3){ray_dir.x,ray_dir.y,ray_dir.z};
 			data.normal = vec3_norm(current_cylindre->axis);
+			if(back_side)
+			{
+				data = set_data(-1, t ,cylinder ,vec);
+				data.normal = color_scale(-1,current_cylindre->axis);
+			}
+			data.dir = (t_vec3){ray_dir.x,ray_dir.y,ray_dir.z};
 			data.ori = (t_vec3){ray_origin.x, ray_origin.y,ray_origin.z};
-			//if(back_side)
-				//data = set_data(-1, t ,cylinder ,vec);
 		}
         current_cylindre = current_cylindre->next;
     }
+	*/
 	while (current_plane != NULL)
     {
         t = intersect_plane(current_plane, ray_origin, ray_dir);
-        if (t > 0 && (data.t < 0 || t < data.t))
+        if (t > 0 && t < data.t)
 		{
 			vec = current_plane->color;
 			data = set_data(t, 0, plane , vec);
@@ -239,8 +249,9 @@ t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir)
 			data.ori = (t_vec3){ray_origin.x, ray_origin.y,ray_origin.z};
 		}
         current_plane = current_plane->next;
+		
     }
-    return (data);
+	return data;
 }
 
 t_point ft_get_color(t_scene *scene,t_cam cam , float i, float j)
@@ -248,7 +259,7 @@ t_point ft_get_color(t_scene *scene,t_cam cam , float i, float j)
 	t_vec3 dir;
 	t_vec3 ori;
 	t_point data;
-	
+
 	ori = cam.pos;
 	dir = vec3_sub(color_scale(i,cam.hor), color_scale(-j,cam.ver));
 	dir = (t_vec3){dir.x + cam.c.x , dir.y + cam.c.y , dir.z + cam.c.z};
@@ -291,13 +302,32 @@ t_vec3			c_comp(t_light *light, t_point shadow, t_vec3 hit_point)
 	if (gain <= 0)
 		light_bright = 0;
 	else
-		light_bright = (light->ratio * gain * 1000) /
+		light_bright = (light->ratio * gain * 1000) / 
 						(4.0 * 3.1415 * r2);
 	//shadow_color = to_color(0,color_scale(255,shadow.color));
 	//light_color = to_color(0,color_scale(255,light->color));	
 	shadow_color = color_scale(light_bright, shadow.color);	
 	return vec3_dot(shadow_color,light->color);
 	//return (c_prod(c_add(0, c_scale(shadow_color, light_bright)), light_color));
+}
+
+double limitation(double n)
+{
+	if(n > 1)
+		return 1;
+	if(n < 0)
+		return 0;
+	return n;
+}
+
+t_vec3 ft_limit(t_vec3 vec)
+{
+	t_vec3 c;
+	c.x = limitation(vec.x);
+	c.y = limitation(vec.y);
+	c.z = limitation(vec.z);
+
+	return c;
 }
 
 void ft_drew(t_scene *scene, mlx_image_t *img)
@@ -316,14 +346,12 @@ void ft_drew(t_scene *scene, mlx_image_t *img)
 	color = 0;
 	li = scene->object.li_lst;
 	j = 0; 	
-	while(j < HEIGHT - 1) 
+	while(j < HEIGHT) 
 	{
 		i = 0;
-		while(i < WIDTH - 1)
+		while(i < WIDTH)
 		{
 			data= ft_get_color(scene,scene->cam, (float)i / WIDTH , (float)j / HEIGHT); 
-			am = (t_vec3){1 * scene->amb.brightness,1 *scene->amb.brightness,1 * scene->amb.brightness};
-			c = vec3_dot(data.color, am);
 			if(data.intersect == true  && data.type == plane)
 			{
 				hit_point = get_hit_point(data);
@@ -335,19 +363,22 @@ void ft_drew(t_scene *scene, mlx_image_t *img)
 			{
 				hit_point = get_hit_point(data);
 				normal = vec3_sub(hit_point,data.normal); // data.ormal is center of shpere
-				normal = vec3_norm(normal);
+				data.normal = vec3_norm(normal);
 			}
 			if(data.intersect == true)
 			{
+				am =  scene->amb.color;
+				c = vec3_dot(data.color, am);
+
 				t_light *tmp = li;
-				while(tmp)
+				if(tmp)
 				{
 					shadow = handle_shadow(hit_point,normal,tmp,scene);
 					if(shadow.intersect == false)
 					{
 						c = vec3_add(c,c_comp(tmp,data, hit_point));
+						c = ft_limit(c);
 					}
-
 					color = to_color(255,color_scale(255,c));
 					tmp = tmp->next;
 				}

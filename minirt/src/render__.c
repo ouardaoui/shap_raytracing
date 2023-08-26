@@ -265,12 +265,12 @@ t_vec3 get_hit_point(t_point data)
 	return vec;
 }
 
-t_point handle_shadow(t_vec3 pts, t_vec3 n, t_light *li,t_scene *scene)
+/*t_point handle_shadow(t_vec3 pts, t_vec3 n, t_light *li,t_scene *scene)
 {
 	t_vec3 ori = vec3_add(pts,color_scale(0.0001, n));
 	t_vec3 dir = vec3_norm(vec3_sub(li->pos,ori));
 	return(intersect_objects(scene,ori,dir));
-}
+}*/
 
 t_vec3			c_comp(t_light *light, t_point shadow, t_vec3 hit_point)
 {

@@ -21,7 +21,7 @@
 
 #define WIDTH 800
 #define HEIGHT 800
-#define MAX_T 100000000000
+#define MAX_T 1000000000
 
 typedef struct 	s_scene		t_scene;
 typedef struct 	s_set		t_set;
@@ -52,9 +52,9 @@ struct s_vec3
 };
 struct  s_p
 {
-	bool intersect;
 	double t;
 	double s_t;
+	bool intersect;
 	int type;
 	t_vec3 dir;
 	t_vec3 ori;
