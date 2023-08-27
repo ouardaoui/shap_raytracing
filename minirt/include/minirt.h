@@ -35,6 +35,7 @@ typedef struct s_sphere		t_sphere;
 typedef struct s_cylinder	t_cylinder;
 typedef struct s_plane		t_plane;
 typedef struct s_p		t_point;
+typedef struct s_unitv		t_unitv;
 typedef enum e_type	type;
 
 
@@ -50,6 +51,13 @@ struct s_vec3
 	double	x;
 	double	y;
 	double	z;
+};
+
+struct s_unitv
+{
+	t_vec3 w;
+	t_vec3 u;
+	t_vec3 v;
 };
 
 struct s_equa

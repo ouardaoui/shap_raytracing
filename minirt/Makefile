@@ -22,7 +22,6 @@ SRCS = src/main.c \
 	src/list_tools_two.c \
 	src/get_next_line.c \
 	src/render.c \
-	src/shading_tools.c	\
 	src/math_tools_two.c  \
 	src/drew.c \
 	src/normal_handle.c \
