@@ -24,8 +24,6 @@ void ft_hook(void* param)
 void create_scene(t_scene *scene, char *filename, mlx_t *mlx, mlx_image_t **image)
 {
     bzero(scene, sizeof(t_scene));
-    printf("-----PARSING FILE----: %s\n", filename);
-    printf("\n\n");
     
 	//mlx = mlx_init(WIDTH, HEIGHT, "Ray Tracing", true);
 	*image = mlx_new_image(mlx, WIDTH, HEIGHT);
@@ -42,7 +40,7 @@ int main(int ac, char **av)
 		int i = 0;
 	if (ac != 2)
 		return (1);
-	mlx = mlx_init(WIDTH, HEIGHT, "Ray Tracing", true); 
+	mlx = mlx_init(WIDTH, HEIGHT, "Ray Tracing", false); 
 	create_scene(&scene, av[1], mlx, &image);
 	render_scene(&scene, image);
 	mlx_loop(mlx);

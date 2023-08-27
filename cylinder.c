@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "MLX42.h"
-#define WIDTH 800
+#define WIDTH 1200
 #define HEIGHT 800
 
 typedef struct {
@@ -151,10 +151,10 @@ f_Vector ft_color(float x,float y)
 {
 
 	Vector d = {x , y, -1} ;
-	Vector normal = {0,0,-1};
+	Vector normal = {0,1,0};
 	normal = vec_norm(normal);
     //d = vec_norm(d);
-	Cylinder cy = {{0,0,0}, 2, 5};
+	Cylinder cy = {{3,0,0}, 2, 5};
 	Vector pos = {0,0, 10};
 	Vector light = {0,1 ,1}; // in fact light is (-1,-1,-1)
 	float t[2];
@@ -222,10 +222,11 @@ void render(mlx_image_t *img)
 	while(j < 800)
 	{
 		i = 0;
-		while(i < 800)
+		while(i < 1200)
 		{
-			float x = (1.0 - 2.0 * (i + 0.5) / 799);
-            float y = (1.0 - 2.0 * (j + 0.5) / 799) ;						
+			float x = (1.0 - 2.0 * (i + 0.5) / 1200) * 1200 / 800;
+            float y = (1.0 - 2.0 * (j + 0.5) / 799) ;
+			printf("%f\t%f\n", x, y);						
 			color = ft_color(x, y);
 			mlx_put_pixel(img, i, j, to_color((Vector_4){255 * color.r, 255 *color.g , 255 *color.b , 255 * color.r}));
 			i++;
@@ -236,13 +237,13 @@ void render(mlx_image_t *img)
 
 int main()
 {
-    mlx_t* mlx = mlx_init(WIDTH, HEIGHT, "41Balls", true);
+    mlx_t* mlx = mlx_init(WIDTH, HEIGHT, "41Balls", false);
 	if (!mlx)
 		ft_error();
 
 
-	mlx_image_t* img = mlx_new_image(mlx, 800, 800);
-	if (!img || (mlx_image_to_window(mlx, img, -1, 0) < 0))
+	mlx_image_t* img = mlx_new_image(mlx, 1200, 800);
+	if (!img || (mlx_image_to_window(mlx, img, 0, 0) < 0))
 		ft_error();
 
 	render(img);

@@ -73,17 +73,16 @@ t_cam ft_cam(t_scene *scene)
 	t_vec3	u;
 	t_vec3	v;
 
-
-	float f = (float)cam.fov * 22 / (float)1260;
-	vp[0] = 2 * tan((float)f / 2);
-	vp[1] = vp[0] * (float)HEIGHT  / WIDTH;
+	float f = (float)cam.fov * 11 / (float)1260;
+	vp[0] = 2 * tan(f);
+	vp[1] = vp[0] * (float)HEIGHT  / (float)WIDTH;
 	w = vec3_norm(color_scale(-1,cam.dir));
 	u = vec3_cross((t_vec3){0, 1, 0}, w);
 	v = vec3_cross(w, u);
 	cam.hor = color_scale(vp[0],u);
 	cam.ver = color_scale(vp[1],v);
 	cam.c = vec3_sub(cam.pos, color_scale(0.5 ,cam.hor));
-	cam.c = vec3_sub(cam.c, color_scale(0.5 , cam.ver));
+	cam.c = vec3_sub(cam.c, color_scale(0.5, cam.ver));
 	cam.c = vec3_sub(cam.c, w); //lower view corner;
     return cam;
 }
@@ -272,9 +271,15 @@ t_point ft_get_color(t_scene *scene,t_cam cam , float i, float j)
 	t_point data;
 
 	ori = cam.pos;
-	dir = vec3_sub(color_scale(i,cam.hor), color_scale(-j,cam.ver));
+
+	/*dir = vec3_sub(color_scale(i,cam.hor), color_scale(-j,cam.ver));
 	dir = (t_vec3){dir.x + cam.c.x , dir.y + cam.c.y , dir.z + cam.c.z};
 	dir = vec3_norm(vec3_sub(dir, ori));
+	*/
+	i = 2.0 * i  - 1;
+	j = 2.0 * j  - 1;
+	dir =(t_vec3){i, j , -1};
+	dir = vec3_norm(dir);
 	data = intersect_objects(scene, ori,dir);
 	return data;
 }
@@ -306,11 +311,8 @@ t_vec3			c_comp(t_light *light, t_point shadow, t_vec3 hit_point)
 	else
 		light_bright = (light->ratio * gain * 1000) / 
 						(4.0 * 3.1415 * r2);
-	//shadow_color = to_color(0,color_scale(255,shadow.color));
-	//light_color = to_color(0,color_scale(255,light->color));	
 	shadow_color = color_scale(light_bright, shadow.color);	
 	return vec3_dot(shadow_color,light->color);
-	//return (c_prod(c_add(0, c_scale(shadow_color, light_bright)), light_color));
 }
 
 double limitation(double n)
@@ -354,6 +356,7 @@ void ft_drew(t_scene *scene, mlx_image_t *img)
 		while(i < WIDTH)
 		{
 			data= ft_get_color(scene,scene->cam, (float)i / WIDTH , (float)j / HEIGHT); 
+			//data= ft_get_color(scene,scene->cam, (float)i  , (float)j ); 
 			if(data.intersect == true  && data.type == plane)
 			{
 				hit_point = get_hit_point(data);

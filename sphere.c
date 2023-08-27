@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "MLX42.h"
-#define WIDTH 800
+#define WIDTH 1200
 #define HEIGHT 800
 
 typedef struct {
@@ -116,9 +116,9 @@ f_Vector ft_color(float x,float y)
 
 	Vector dir = {x, y, -1};
     //dir = vec2_norm(dir);
-	Sphere sp = {{0,0,0}, 0.5};
-	Vector pos = {0,0,1};
-	Vector light = {1,0 ,0}; 
+	Sphere sp = {{5,5,0}, 2};
+	Vector pos = {0,0,12};
+	Vector light = {0,6,0}; 
 
     Vector oc = vec2_sub(pos, sp.center); // (0 , 0, 5)
     double a = vec2_dot(dir, dir); // 1;
@@ -159,17 +159,18 @@ void render(mlx_image_t *img)
 	int j = 0;
 	f_Vector color;
 	
-	while(j < 799)
+	while(j < 800)
 	{
 		i = 0;
-		while(i < 799)
+		while(i < 1200)
 		{
 		
-			float x = i  / (float)799; // 0 - 400 , 800 - 400  
+			float x = i  / (float)1200; // 0 - 400 , 800 - 400  
             float y = j /  (float)799;
-			x = 2.0 * x - 1;						
-			y = 2.0 * y - 1;
-			color = ft_color(x, y);
+			//x = 2.0 * x - 1;						
+			//y = 2.0 * y - 1;
+			printf("%f\t%f\n", x, y);
+			color = ft_color(x, y)	;
 			mlx_put_pixel(img, i, 800 - j, to_color((Vector_4){color.r * 255, color.g * 255, color.b *255, 255}));
 			i++;
 		}
@@ -179,12 +180,12 @@ void render(mlx_image_t *img)
 
 int main()
 {
-    mlx_t* mlx = mlx_init(WIDTH, HEIGHT, "41Balls", true);
+    mlx_t* mlx = mlx_init(WIDTH, HEIGHT, "41Balls", false);
 	if (!mlx)
 		ft_error();
 
 
-	mlx_image_t* img = mlx_new_image(mlx, 800, 800);
+	mlx_image_t* img = mlx_new_image(mlx, 1200, 800);
 	if (!img || (mlx_image_to_window(mlx, img, 0, 0) < 0))
 		ft_error();
 	render(img);
