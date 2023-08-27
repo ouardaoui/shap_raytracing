@@ -27,6 +27,7 @@ typedef struct 	s_scene		t_scene;
 typedef struct 	s_set		t_set;
 typedef struct 	s_cam		t_cam;
 typedef struct	s_vec3		t_vec3;
+typedef struct	s_equa		t_equa;
 typedef struct	s_am_light	t_am_light;
 typedef struct	s_light		t_light;
 typedef struct	s_object	t_object;
@@ -50,6 +51,17 @@ struct s_vec3
 	double	y;
 	double	z;
 };
+
+struct s_equa
+{
+	double a;
+	double b;
+	double c;
+	double h;
+	t_vec3 o;
+	t_vec3 n;
+};
+
 struct  s_p
 {
 	bool intersect;

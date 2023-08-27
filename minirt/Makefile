@@ -19,6 +19,7 @@ SRCS = src/main.c \
 	src/math_tools.c  \
 	src/parsing_tools.c \
 	src/list_tools.c \
+	src/list_tools_two.c \
 	src/get_next_line.c \
 	src/render.c \
 	src/shading_tools.c	\
@@ -26,7 +27,8 @@ SRCS = src/main.c \
 	src/drew.c \
 	src/normal_handle.c \
 	src/inter_objects.c \
-	src/tools.c
+	src/tools.c \
+	src/inter_cylindre.c
 NAME = miniRT
 
 all: $(NAME)

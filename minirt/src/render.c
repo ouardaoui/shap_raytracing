@@ -6,10 +6,9 @@
 /*   By: aouardao <aouardao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/27 16:21:01 by aouardao          #+#    #+#             */
-/*   Updated: 2023/08/27 17:34:58 by aouardao         ###   ########.fr       */
+/*   Updated: 2023/08/27 18:13:18 by aouardao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "../include/minirt.h"
 
@@ -18,15 +17,7 @@ void print(t_vec3 a)
 	printf("%f\t%f\t%f\n", a.x, a.y , a.z);
 }
 
-t_vec3 handle_coor(t_vec3 a, t_vec3 n)
-{
-	t_vec3 res;
-	double cos = vec2_dot(a,n);
-	t_vec3 nn = (t_vec3){n.x * cos , n.y * cos, n.z * cos};
-	res = vec3_sub(a,nn);
 
-	return res;
-}
 
 t_cam ft_cam(t_scene *scene)
 {
@@ -69,13 +60,7 @@ double intersect_sphere(t_sphere *sphere, t_vec3 ray_origin, t_vec3 ray_dir)
     }
 }
 
-float ft_dis(t_vec3 pos,t_vec3 oc, float t,t_vec3 normal,t_vec3 d)
-{
-		d = (t_vec3){d.x * t ,d.y * t, d.z *t};
-		oc = (t_vec3){oc.x * -1 ,oc.y * -1, oc.z *-1};
-		float k = vec2_dot(normal,vec3_sub(d, oc));
-		return k;
-}
+
 
 double intersect_plane(t_plane *plane, t_vec3 ray_origin, t_vec3 ray_dir) {
 	t_vec3 nor = vec3_norm(plane->normal);
@@ -88,49 +73,6 @@ double intersect_plane(t_plane *plane, t_vec3 ray_origin, t_vec3 ray_dir) {
         }
     }
     return -1.0; // No intersection
-}
-
-double intersect_cylindre(t_cylinder *cy, t_vec3 ray_origin, t_vec3 ray_dir, int *v)
-{
-	t_vec3 normal = vec3_norm(cy->axis);
-	
-	t_vec3 pos = ray_origin;
-	t_vec3 d = ray_dir;
-	float t[2];
-	float dis[2];
-	bool bol[2];
-
-	t_vec3 dir = handle_coor(d, normal);
-    t_vec3 o = vec3_sub(pos, cy->center); 
-	t_vec3 oc = handle_coor(o, normal);
-    double a = vec2_dot(dir, dir); 
-    double b = 2.0 * vec2_dot(oc, dir); 
-    double c = vec2_dot(oc, oc) - (cy->diameter * cy->diameter); 
-    double discriminant = b * b - 4 * a * c; 
-    if (discriminant < 0)
-        return -1; 
-    else
-    {
-		
-        double t0 = (-b + sqrt(discriminant)) / (2.0 * a);
-        double t1 = (-b - sqrt(discriminant)) / (2.0 * a);
-        t[0] =  fmin(t0, t1);
-		t[1] = fmax(t0, t1);
-
-		dis[0] = ft_dis(pos,o, t[0], normal, d);
-		dis[1] = ft_dis(pos,o, t[1], normal, d);
-		bol[0] = dis[0] >= 0 && dis[0] <= cy->height && t[0] > 0.0;
-		bol[1] = dis[1] >= 0 && dis[1] <= cy->height && t[1] > 0.0;
-
-		if(bol[0])
-			return t[0];
-		if(bol[0] == false &  bol[1] == true)
-		{
-			*v = 1;
-			return t[1];
-		}
-		return -1;
-    }
 }
 
 uint32_t to_color(uint8_t a,t_vec3 vec)
