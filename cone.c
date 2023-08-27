@@ -106,7 +106,7 @@ f_Vector ft_color(float x,float y)
 	Vector dir = {x , 0, -1};
     //dir = vec2_norm(dir);
 	Cylinder cy = {{0,0,0}, 1, 4};
-	Vector pos = {0,0, 10};
+	Vector pos = {0,0,10};
 	Vector light = {0,1 ,1}; // in fact light is (-1,-1,-1)
 	double A = pos.x - cy.center.x;
     double B = pos.z - cy.center.z;

@@ -13,11 +13,11 @@
 CC		= cc
 FLAGS	=   -IINC -fsanitize=address -g -Wunreachable-code -Ofast
 UNAME_S := $(shell uname -s)
-##LIBMLX = ../os/libmlx42.a
-##LIB_PATH =  -Iinclude -lglfw -L"/goinfre/aouardao/brew/Cellar/glfw/3.3.8/lib"
+LIBMLX = ../os/libmlx42.a
+LIB_PATH =  -Iinclude -lglfw -L"/goinfre/aouardao/brew/Cellar/glfw/3.3.8/lib"
 ##ifeq ($(UNAME_S),Linux)
-LIB_PATH =  -Iinclude -ldl -lglfw -pthread -lm
-LIBMLX = ../unix/libmlx42.a
+##LIB_PATH =  -Iinclude -ldl -lglfw -pthread -lm
+##LIBMLX = ../unix/libmlx42.a
 ##endif
 NAME	= miniRT
 

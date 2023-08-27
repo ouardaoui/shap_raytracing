@@ -11,8 +11,8 @@
 # **************************************************************************** #
 
 CC		= cc
-CFLAGS = -Wall -Werror -Wextra
-LIBMLX = ../unix/libmlx42.a
+CFLAGS =  -Wall -Werror -Wextra -fsanitize=adddress  -Ofast
+LIBMLX = ../os/libmlx42.a
 SRCS = src/main.c \
 	src/parse.c \
 	src/parse_elem.c \
@@ -21,13 +21,18 @@ SRCS = src/main.c \
 	src/list_tools.c \
 	src/get_next_line.c \
 	src/render.c \
-	src/shading_tools.c	
+	src/shading_tools.c	\
+	src/math_tools_two.c  \
+	src/drew.c \
+	src/normal_handle.c \
+	src/inter_objects.c \
+	src/tools.c
 NAME = miniRT
 
 all: $(NAME)
 
 $(NAME): $(SRCS)
-	@$(CC) $(FLAGS) $(SRCS) $(LIBMLX) src/libft.a -lglfw -lm -o $(NAME)
+	@$(CC) $(FLAGS) $(SRCS) $(LIBMLX) utils/libft.a  -lglfw -L"/goinfre/aouardao/brew/Cellar/glfw/3.3.8/lib" -o $(NAME)
 
 run:
 	make re && ./miniRT

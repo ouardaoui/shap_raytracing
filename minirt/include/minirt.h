@@ -58,6 +58,7 @@ struct  s_p
 	int type;
 	t_vec3 dir;
 	t_vec3 ori;
+	t_vec3 hit_point;
 	t_vec3 normal;
 	t_vec3 color;
 };
@@ -178,6 +179,22 @@ t_plane *create_plane_node() ;
 void add_light_to_back(t_light **lst, t_light *new_node);
 t_light *create_light_node();
 void render_scene(t_scene  *scene, mlx_image_t *img);
+t_vec3		vec3_cross(t_vec3 v, t_vec3 u);
+double vec3_length(t_vec3 vec);
+double vec3_dis(t_vec3 vec, t_vec3 a);
+t_vec3	vec3_add(t_vec3 vec1, t_vec3 vec2);
+double	vec2_dot(t_vec3 vec1, t_vec3 vec2);
+t_vec3	vec3_dot(t_vec3 vec1, t_vec3 vec2);
+t_vec3 set_vec(double x, double y , double z);
+t_vec3 ft_handle_normal(t_point *data);
+t_point intersect_objects(t_scene *scene, t_vec3 ray_origin, t_vec3 ray_dir);
+t_point set_data(double t , double s_t, int type, t_vec3 vec);
+t_vec3 get_hit_point(t_point data);
+void ft_drew(t_scene *scene, mlx_image_t *img);
+t_vec3 ft_limit(t_vec3 vec);
+uint32_t to_color(uint8_t a,t_vec3 vec);
+double intersect_cylindre(t_cylinder *cy, t_vec3 ray_origin, t_vec3 ray_dir, int *v);
+double intersect_plane(t_plane *plane, t_vec3 ray_origin, t_vec3 ray_dir) ;
+double intersect_sphere(t_sphere *sphere, t_vec3 ray_origin, t_vec3 ray_dir);
 
-
-#endif // MINIRT_H
+#endif 

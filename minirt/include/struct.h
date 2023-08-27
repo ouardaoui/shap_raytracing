@@ -6,7 +6,7 @@
 /*   By: aouardao <aouardao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/13 21:22:55 by hahadiou          #+#    #+#             */
-/*   Updated: 2023/08/17 02:39:38 by aouardao         ###   ########.fr       */
+/*   Updated: 2023/08/27 12:55:39 by aouardao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ struct s_vec3
     double x;
     double y;
     double z;
-    // Add new member for orientation (rotation)
     double orientation_x;
     double orientation_y;
     double orientation_z;
@@ -63,5 +62,4 @@ struct s_light {
     t_vec3 color;
 };
 
-
-#endif // STRUCTS_H
+#endif 
