@@ -6,7 +6,7 @@
 /*   By: aouardao <aouardao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/27 17:42:34 by aouardao          #+#    #+#             */
-/*   Updated: 2023/08/27 20:46:33 by aouardao         ###   ########.fr       */
+/*   Updated: 2023/08/27 20:51:02 by aouardao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,9 +67,10 @@ double	intersect_cylindre(t_cylinder *cy, t_vec3 pos, t_vec3 d, int *v)
 	t_equa	vs;
 	t_vec3	dir;
 	t_vec3	oc;
-	double tan;
+	//double tan;
 	
-	tan = (cy->diameter /cy.h) * (cy.radius );
+	//tan = (cy->diameter /cy->height) * (cy->diameter / cy->height);
+	
 	vs.n = vec3_norm(cy->axis);
 	dir = handle_coor(d, vs.n);
 	vs.o = vec3_sub(pos, cy->center);
